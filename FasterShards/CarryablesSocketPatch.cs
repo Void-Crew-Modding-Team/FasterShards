@@ -1,30 +1,31 @@
-﻿using CG.Ship.Hull;
+﻿using CG.Game;
+using CG.Ship.Hull;
 using HarmonyLib;
-using VoidManager.Utilities;
+using System.Linq;
+using UnityEngine;
 
 namespace FasterShards
 {
     [HarmonyPatch(typeof(CarryablesSocket))]
     internal class CarryablesSocketPatch
     {
-        [HarmonyPostfix]
-        [HarmonyPatch("Start")]
-        static void Start(CarryablesSocket __instance)
+        [HarmonyPrefix]
+        [HarmonyPatch("SetUseExternalSocketClear")]
+        static void SetUseExternalSocketClear(CarryablesSocket __instance, ref float preDestroyTimer, ref float postDestroyTimer)
         {
             if (__instance.name == "GalaxyMapTerminal_SingleSocket")
             {
-                __instance.IsOutput = false;
+                preDestroyTimer = Mathf.Max(Configs.PreDestroyDelayConfig.Value, 0.01f);
+                postDestroyTimer = Mathf.Max(Configs.PostDestroyDelayConfig.Value, 0f);
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch("OnAcquireCarryablePassthrough")]
-        static void OnAcquireCarryablePassthrough(CarryablesSocket __instance)
+        public static void UpdateSocketClearTimers(float preDestroyTimer, float postDestroyTimer)
         {
-            if (__instance.name == "GalaxyMapTerminal_SingleSocket")
-            {
-                Tools.DelayDo(() => __instance.SetState(Gameplay.Carryables.SocketState.Open), 0);
-            }
+            SocketClearOperation socketOperation = ClientGame.Current?.PlayerShip?.GameObject?.GetComponentsInChildren<CarryablesSocket>()?.FirstOrDefault(socket => socket.name == "GalaxyMapTerminal_SingleSocket")?.customSocketClearOperation;
+            if (socketOperation == null) return;
+            socketOperation.preDestroyTimer = Mathf.Max(preDestroyTimer, 0.01f);
+            socketOperation.postDestroyTime = Mathf.Max(postDestroyTimer, 0f);
         }
     }
 }

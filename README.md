@@ -4,7 +4,7 @@
 
 # FasterShards
 
-Version 0.0.0  
+Version 0.1.0  
 For Game Version 0.26.3  
 Developed by 18107  
 Requires VoidManager 1.1.7
@@ -17,6 +17,7 @@ Requires VoidManager 1.1.7
 ### 🎮 Client Usage
 
 - Install
+- Configure at F5 > Mod Settings > Faster Shards
 
 ### 👥 Multiplayer Functionality
 
